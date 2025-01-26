@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Utilities.Utils;
@@ -8,7 +6,9 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Burst;
-public class Graph : MonoBehaviour
+using System.Linq;
+
+public partial class Graph : MonoBehaviour
 {
     #region Variables
     [SerializeField] private Point pointPrefab;
@@ -16,20 +16,18 @@ public class Graph : MonoBehaviour
     [SerializeField] private Vector3 scale;
     private Point[] points;
     [SerializeField] private FunctionTypes currentFunctionType;
+    private FunctionTypes currentFunctionTypeHolder;
     private Dictionary<FunctionTypes, FunctionLibrary.FunctionMethod> functionMethodsDictionary
     = new Dictionary<FunctionTypes, FunctionLibrary.FunctionMethod>();
     #endregion
-    #region BurstCompileVariables
-    [SerializeField] private bool useBurst = false;
-    NativeArray<Vector3> pointPositions;
-    NativeArray<float> calculationResults;
-    #endregion
+
 
     private void OnDisable()
     {
-        pointPositions.Dispose();
-        calculationResults.Dispose();
+        pointTransformAcesses.Dispose();
+        compiledFunctionPointers.Dispose();
     }
+
     void Start()
     {
         #region y=x^3
@@ -55,23 +53,33 @@ public class Graph : MonoBehaviour
         //     point.SetScale(Vector3.one / 5);
         // }
         #endregion
+        currentFunctionTypeHolder = currentFunctionType;
         InitializeFuncDictionary();
         InitializePoints();
-        pointPositions = new NativeArray<Vector3>(points.Length, Allocator.Persistent);
-        calculationResults = new NativeArray<float>(points.Length, Allocator.Persistent);
+        InitializeCompiledFunctionPointers();
+        InitalizeJobValues();
     }
 
     private void Update()
     {
+        //FOR FPS COUNTER(BUILD) MESSY I KNOW, WILL REFACTOR LATER
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            useBurst = true;
+        }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            useBurst = false;
+        }
         if (useBurst)
         {
             WaveFunctionBurst();
+            IsCurrentFunctionTypeChanged();
         }
         else
         {
             WaveFunction();
         }
-
     }
     private void WaveFunction()
     {
@@ -112,45 +120,73 @@ public class Graph : MonoBehaviour
         }
 
     }
+}
+
+//MULTITHREADING
+public partial class Graph
+{
+    #region BurstCompileVariables
+    [SerializeField] private bool useBurst = false;
+    private NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>> compiledFunctionPointers;
+    private WaveJob job = new WaveJob();
+    private TransformAccessArray pointTransformAcesses;
+    private JobHandle handle;
+    #endregion
     #region Burst
     private void WaveFunctionBurst()
     {
-        FunctionLibrary.FunctionMethod method = functionMethodsDictionary[currentFunctionType];
-        FunctionPointer<FunctionLibrary.FunctionMethod> functionPointer = BurstCompiler.CompileFunctionPointer<FunctionLibrary.FunctionMethod>(method);
         //Debug.Log(functionPointer.IsCreated);
+        job.time = Time.time;
+        handle = job.Schedule(pointTransformAcesses);
+        handle.Complete();
+    }
+    private void InitalizeJobValues()
+    {
+        Transform[] transforms = new Transform[points.Length];
         for (int i = 0; i < points.Length; i++)
         {
-            pointPositions[i] = points[i].GetLocalPosition();
+            transforms[i] = points[i].transform;
         }
-        WaveJob job = new WaveJob
+        pointTransformAcesses = new TransformAccessArray(transforms);
+        job = new WaveJob()
         {
-            pointPositions = pointPositions,
-            functionPtr = functionPointer,
-            results = calculationResults,
-            time = Time.time
-
-
+            time = Time.time,
+            currentFunctionKeyValue = (int)currentFunctionType,
+            functionPtrs = compiledFunctionPointers
         };
-        JobHandle handle = job.Schedule(points.Length, Mathf.Max(1, points.Length / SystemInfo.processorCount));
-        handle.Complete();
 
-        for (int i = 0; i < calculationResults.Length; i++)
+    }
+    private void InitializeCompiledFunctionPointers()
+    {
+        compiledFunctionPointers = new NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>>(functionMethodsDictionary.Count, Allocator.Persistent);
+        for (int i = 0; i < functionMethodsDictionary.Count; i++)
         {
-            Vector3 localPos = points[i].GetLocalPosition();
-            points[i].SetLocalPosition(new Vector3(localPos.x, calculationResults[i], localPos.z));
+            compiledFunctionPointers.Add((int)functionMethodsDictionary.ElementAt(i).Key,
+            BurstCompiler.CompileFunctionPointer(functionMethodsDictionary.ElementAt(i).Value));
         }
+    }
+    private bool IsCurrentFunctionTypeChanged()
+    {
+        if (currentFunctionType != currentFunctionTypeHolder)
+        {
+            currentFunctionTypeHolder = currentFunctionType;
+            job.currentFunctionKeyValue = (int)currentFunctionType;
+            return true;
+        }
+        return false;
+
     }
     [BurstCompile]
-    private struct WaveJob : IJobParallelFor
+    private struct WaveJob : IJobParallelForTransform
     {
-        [ReadOnly] public NativeArray<Vector3> pointPositions;
-        [ReadOnly] public FunctionPointer<FunctionLibrary.FunctionMethod> functionPtr;
-        [WriteOnly] public NativeArray<float> results;
+        [ReadOnly] public int currentFunctionKeyValue;
+        [ReadOnly] public NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>> functionPtrs;
         [ReadOnly] public float time;
-        public void Execute(int index)
+        public void Execute(int index, TransformAccess transform)
         {
-            results[index] = functionPtr.Invoke(pointPositions[index].x, pointPositions[index].z, time);
+            transform.position = new float3(transform.position.x, functionPtrs[currentFunctionKeyValue].Invoke(transform.position.x, transform.position.y, time), transform.position.z);
         }
     }
+
     #endregion
 }
