@@ -13,5 +13,13 @@ namespace Utilities
             Ripple
 
         }
+        public enum MeshTypes
+        {
+            Cube,
+            Sphere,
+            Capsule,
+            Cylinder
+
+        }
     }
 }

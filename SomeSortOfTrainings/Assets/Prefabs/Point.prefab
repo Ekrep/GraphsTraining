@@ -96,4 +96,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd04aa7a34667e64f99f6081f3816892, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointRenderer: {fileID: 0}
+  pointRenderer: {fileID: 3202516257841251533}
+  pointMeshFilter: {fileID: 6578436268801997795}

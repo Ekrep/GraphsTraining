@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ec0232cd237740824c4d9e5307489, type: 3}
+  m_Name: GraphData
+  m_EditorClassIdentifier: 
+  pointPrefab: {fileID: 4865737772897536210, guid: 60b0e4fb18821f144a7eaf2c6c11a373, type: 3}
+  resolution: 20
+  pointScale: {x: 1, y: 1, z: 1}
+  meshType: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  prefabMeshType: 3
+  meshTypeDataCollection:
+  - mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    meshType: 0
+  - mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+    meshType: 2
+  - mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+    meshType: 3
+  - mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+    meshType: 1

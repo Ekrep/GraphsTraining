@@ -7,13 +7,12 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Burst;
 using System.Linq;
+using GraphProperties.GraphData;
 
 public partial class Graph : MonoBehaviour
 {
     #region Variables
-    [SerializeField] private Point pointPrefab;
-    [SerializeField] private int resolution;
-    [SerializeField] private Vector3 scale;
+    [SerializeField] private GraphPropertiesScriptable graphProperties;
     private Point[] points;
     [SerializeField] private FunctionTypes currentFunctionType;
     private FunctionTypes currentFunctionTypeHolder;
@@ -94,17 +93,18 @@ public partial class Graph : MonoBehaviour
     }
     private void InitializePoints()
     {
-        points = new Point[resolution * resolution];
-        float step = 2f / resolution;
-        Vector3 scale = this.scale * step;
+        points = new Point[graphProperties.resolution * graphProperties.resolution];
+        float step = 2f / graphProperties.resolution;
+        Vector3 scale = graphProperties.pointScale * step;
         for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++)
         {
-            if (x == resolution)
+            if (x == graphProperties.resolution)
             {
                 x = 0;
                 z += 1;
             }
-            points[i] = Instantiate(pointPrefab);
+            points[i] = Instantiate(graphProperties.pointPrefab);
+            points[i].pointMeshFilter.mesh = graphProperties.meshType;
             points[i].SetPosition(new Vector3((x + 0.5f) * step - 1f, 0, (z + 0.5f) * step - 1f));
             points[i].SetScale(scale);
             points[i].SetParent(transform, false);
@@ -184,7 +184,7 @@ public partial class Graph
         [ReadOnly] public float time;
         public void Execute(int index, TransformAccess transform)
         {
-            transform.position = new float3(transform.position.x, functionPtrs[currentFunctionKeyValue].Invoke(transform.position.x, transform.position.y, time), transform.position.z);
+            transform.position = new float3(transform.position.x, functionPtrs[currentFunctionKeyValue].Invoke(transform.position.x, transform.position.z, time), transform.position.z);
         }
     }
 

@@ -6,6 +6,7 @@ using UnityEngine;
 public class Point : MonoBehaviour
 {
     public MeshRenderer pointRenderer;
+    public MeshFilter pointMeshFilter;
 
     public void SetPosition(Vector3 position)
     {

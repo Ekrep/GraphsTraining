@@ -314,9 +314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 418a60091f9804e4ab9a4298cce697b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointPrefab: {fileID: 4865737772897536210, guid: 60b0e4fb18821f144a7eaf2c6c11a373, type: 3}
-  resolution: 100
-  scale: {x: 1, y: 1, z: 1}
+  graphProperties: {fileID: 11400000, guid: 3ce3d4a8c30e25f4aae6920c1c9ec523, type: 2}
   currentFunctionType: 0
   useBurst: 0
 --- !u!4 &762095919
