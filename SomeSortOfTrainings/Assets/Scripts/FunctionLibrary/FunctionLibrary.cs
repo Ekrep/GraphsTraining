@@ -74,6 +74,7 @@ public static partial class FunctionLibrary
 {
     //NOT DYNAMIC, DO SOMETHING ABOUT IT LATER
     //Type casting can be used for to make it more dynamic but it will increase the cost i think?
+    //NativeHashMaps can be more efficent i think.
     [BurstCompile]
     public struct WaveFunction : IFunction
     {
