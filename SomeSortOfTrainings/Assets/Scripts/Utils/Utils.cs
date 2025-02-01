@@ -15,10 +15,12 @@ namespace Utilities
         }
         public enum MeshTypes
         {
+
             Cube,
             Sphere,
             Capsule,
-            Cylinder
+            Cylinder,
+            Null
 
         }
     }

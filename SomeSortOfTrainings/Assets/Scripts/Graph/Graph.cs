@@ -24,7 +24,6 @@ public partial class Graph : MonoBehaviour
     private void OnDisable()
     {
         pointTransformAcesses.Dispose();
-        compiledFunctionPointers.Dispose();
     }
 
     void Start()
@@ -55,7 +54,6 @@ public partial class Graph : MonoBehaviour
         currentFunctionTypeHolder = currentFunctionType;
         InitializeFuncDictionary();
         InitializePoints();
-        InitializeCompiledFunctionPointers();
         InitalizeJobValues();
     }
 
@@ -84,10 +82,7 @@ public partial class Graph : MonoBehaviour
     {
         for (int i = 0; i < points.Length; i++)
         {
-            Vector3 localPosition = points[i].GetLocalPosition();
-            //localPosition.y = FunctionLibrary.MorphingWave(localPosition.x, Time.time);
-            localPosition.y = functionMethodsDictionary[currentFunctionType](localPosition.x, localPosition.z, Time.time);
-            points[i].SetLocalPosition(localPosition);
+            points[i].SetLocalPosition(functionMethodsDictionary[currentFunctionType](points[i].GetLocalPosition().x, points[i].GetLocalPosition().z, Time.time));
         }
 
     }
@@ -127,7 +122,6 @@ public partial class Graph
 {
     #region BurstCompileVariables
     [SerializeField] private bool useBurst = false;
-    private NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>> compiledFunctionPointers;
     private WaveJob job = new WaveJob();
     private TransformAccessArray pointTransformAcesses;
     private JobHandle handle;
@@ -151,26 +145,17 @@ public partial class Graph
         job = new WaveJob()
         {
             time = Time.time,
-            currentFunctionKeyValue = (int)currentFunctionType,
-            functionPtrs = compiledFunctionPointers
+            currentFunc = new FunctionLibrary.WaveFunction(),
         };
+        job.currentFunc.functionType = (int)currentFunctionType;
 
-    }
-    private void InitializeCompiledFunctionPointers()
-    {
-        compiledFunctionPointers = new NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>>(functionMethodsDictionary.Count, Allocator.Persistent);
-        for (int i = 0; i < functionMethodsDictionary.Count; i++)
-        {
-            compiledFunctionPointers.Add((int)functionMethodsDictionary.ElementAt(i).Key,
-            BurstCompiler.CompileFunctionPointer(functionMethodsDictionary.ElementAt(i).Value));
-        }
     }
     private bool IsCurrentFunctionTypeChanged()
     {
         if (currentFunctionType != currentFunctionTypeHolder)
         {
             currentFunctionTypeHolder = currentFunctionType;
-            job.currentFunctionKeyValue = (int)currentFunctionType;
+            job.currentFunc.functionType = (int)currentFunctionType;
             return true;
         }
         return false;
@@ -179,12 +164,11 @@ public partial class Graph
     [BurstCompile]
     private struct WaveJob : IJobParallelForTransform
     {
-        [ReadOnly] public int currentFunctionKeyValue;
-        [ReadOnly] public NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>> functionPtrs;
+        [ReadOnly] public FunctionLibrary.WaveFunction currentFunc;
         [ReadOnly] public float time;
         public void Execute(int index, TransformAccess transform)
         {
-            transform.position = new float3(transform.position.x, functionPtrs[currentFunctionKeyValue].Invoke(transform.position.x, transform.position.z, time), transform.position.z);
+            transform.position = currentFunc.Evaluate(transform.position.x, transform.position.z, time);
         }
     }
 
