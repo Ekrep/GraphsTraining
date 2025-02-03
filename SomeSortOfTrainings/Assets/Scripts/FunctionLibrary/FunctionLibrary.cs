@@ -1,13 +1,11 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
-using UnityEngine;
-using static UnityEngine.Mathf;
 using static Utilities.Utils;
 using Unity.Mathematics;
 
-public static partial class FunctionLibrary
+
+[BurstCompile]
+public static class FunctionLibrary
 {
     public struct MethodFunctionData
     {
@@ -20,94 +18,57 @@ public static partial class FunctionLibrary
         public FunctionMethod func;
 
     }
+    public delegate void FunctionMethod(float u, float v, float t, out float x, out float y, out float z);
 
-    public delegate Vector3 FunctionMethod(float u, float v, float t);
-
-    private static Vector3 Wave(float u, float v, float t)
+    [BurstCompile]
+    private static void Wave(float u, float v, float t, out float x, out float y, out float z)
     {
-        Vector3 p;
-        p.x = u;
-        p.y = math.sin(math.PI * (u + v + t));
-        p.z = v;
-        return p;
+        x = u;
+        y = math.sin(math.PI * (u + v + t));
+        z = v;
     }
-    private static Vector3 MultiWave(float u, float v, float t)
+    [BurstCompile]
+    private static void MultiWave(float u, float v, float t, out float x, out float y, out float z)
     {
-        Vector3 p;
-        p.x = u;
-        p.y = (math.sin(math.PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * math.PI * (v + t)) * 0.25f) * (2f / 3f);
-        p.z = v;
-        return p;
-
+        x = u;
+        y = (math.sin(math.PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * math.PI * (v + t)) * 0.25f) * (2f / 3f);
+        z = v;
     }
-    private static Vector3 MorphingWave(float u, float v, float t)
+    [BurstCompile]
+    private static void MorphingWave(float u, float v, float t, out float x, out float y, out float z)
     {
-        Vector3 p;
-        p.x = u;
-        p.y = math.sin(math.PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * math.PI * (u + v + t));
-        p.z = v;
-        return p;
+        x = u;
+        y = math.sin(math.PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * math.PI * (u + v + t));
+        z = v;
     }
-    private static Vector3 Ripple(float u, float v, float t)
+    [BurstCompile]
+    private static void Ripple(float u, float v, float t, out float x, out float y, out float z)
     {
         float d = math.sqrt(u * u + v * v);
-        Vector3 p;
-        p.x = u;
-        p.y = math.sin(math.PI * (4f * d - t)) / (1 + 10f * d);
-        p.z = v;
-        return p;
+        x = u;
+        y = math.sin(math.PI * (4f * d - t)) / (1 + 10f * d);
+        z = v;
     }
-    private static Vector3 Sphere(float u, float v, float t)
+    [BurstCompile]
+    private static void Sphere(float u, float v, float t, out float x, out float y, out float z)
     {
         float r = 0.9f + 0.1f * math.sin(math.PI * (6f * u + 4f * v + t));
         float s = r * math.cos(0.5f * math.PI * v);
-        Vector3 p;
-        p.x = s * math.sin(math.PI * u);
-        p.y = r * math.sin(math.PI * 0.5f * v);
-        p.z = s * math.cos(math.PI * u);
-        return p;
+        x = s * math.sin(math.PI * u);
+        y = r * math.sin(math.PI * 0.5f * v);
+        z = s * math.cos(math.PI * u);
     }
     public static List<MethodFunctionData> GetAllMehtods()
     {
-        List<MethodFunctionData> twoRefFloatTypeFuncs = new List<MethodFunctionData>(){
+        List<MethodFunctionData> floatTypeFuncs = new List<MethodFunctionData>(){
             new MethodFunctionData(FunctionTypes.Wave,Wave),
             new MethodFunctionData(FunctionTypes.MultiWave,MultiWave),
             new MethodFunctionData(FunctionTypes.MorphingWave,MorphingWave),
             new MethodFunctionData(FunctionTypes.Ripple,Ripple),
             new MethodFunctionData(FunctionTypes.Sphere,Sphere)
         };
-        return twoRefFloatTypeFuncs;
+        return floatTypeFuncs;
 
     }
 }
-//FOR BURST
-public static partial class FunctionLibrary
-{
-    //NOT DYNAMIC, DO SOMETHING ABOUT IT LATER
-    //Type casting can be used for to make it more dynamic but it will increase the cost i think?
-    //NativeHashMaps can be more efficent i think.
-    [BurstCompile]
-    public struct WaveFunction : IFunction
-    {
-        public int functionType;
-        public float3 Evaluate(float u, float v, float t)
-        {
-            switch (functionType)
-            {
-                case 0://Wave
-                    return new float3(u, math.sin(math.PI * (u + v + t)), v);
-                case 1://MultiWave
-                    return new float3(u, (math.sin(math.PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * math.PI * (v + t)) * 0.25f) * (2f / 3f), v);
-                case 2://Morphing
-                    return new float3(u, math.sin(math.PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * math.PI * (u + v + t)), v);
-                case 3://Ripple
-                    float d = math.sqrt(u * u + v * v);
-                    return new float3(u, math.sin(math.PI * (4f * d - t)) / (1 + 10f * d), v);
-                default:
-                    break;
-            }
-            return new float3(55, 55, 55);
 
-        }
-    }
-}

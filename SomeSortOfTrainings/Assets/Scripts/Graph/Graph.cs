@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using Unity.Burst;
 using System.Linq;
 using GraphProperties.GraphData;
+using UnityEditor.ShaderGraph.Internal;
 
 public partial class Graph : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public partial class Graph : MonoBehaviour
     private void OnDisable()
     {
         pointTransformAcesses.Dispose();
+        compiledFunctionPointers.Dispose();
     }
 
     void Start()
@@ -54,6 +56,7 @@ public partial class Graph : MonoBehaviour
         currentFunctionTypeHolder = currentFunctionType;
         InitializeFuncDictionary();
         InitializePoints();
+        InitializeCompiledFunctionPointers();
         InitalizeJobValues();
     }
 
@@ -83,6 +86,9 @@ public partial class Graph : MonoBehaviour
         //v means z axis, u means x axis
         float step = 2f / graphProperties.resolution;
         float v = 0.5f * step - 1f;
+        float outX;
+        float outY;
+        float outZ;
         for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++)
         {
             if (x == graphProperties.resolution)
@@ -92,7 +98,8 @@ public partial class Graph : MonoBehaviour
                 v = (z + 0.5f) * step - 1f;
             }
             float u = (x + 0.5f) * step - 1f;
-            points[i].SetLocalPosition(functionMethodsDictionary[currentFunctionType](u, v, Time.time));
+            functionMethodsDictionary[currentFunctionType](u, v, Time.time, out outX, out outY, out outZ);
+            points[i].SetLocalPosition(new Vector3(outX, outY, outZ));
         }
 
     }
@@ -129,14 +136,19 @@ public partial class Graph
     private WaveJob job = new WaveJob();
     private TransformAccessArray pointTransformAcesses;
     private JobHandle handle;
+    private NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>> compiledFunctionPointers;
     #endregion
     #region Burst
     private void WaveFunctionBurst()
     {
         //Debug.Log(functionPointer.IsCreated);
+        //float step = 2f / graphProperties.resolution;
         job.time = Time.time;
+        job.resolution = graphProperties.resolution;
         handle = job.Schedule(pointTransformAcesses);
         handle.Complete();
+        job.x = 0;
+        job.z = 0;
     }
     private void InitalizeJobValues()
     {
@@ -145,21 +157,40 @@ public partial class Graph
         {
             transforms[i] = points[i].transform;
         }
+        float step = 2f / graphProperties.resolution;
+        float v = 0.5f * step - 1f;
         pointTransformAcesses = new TransformAccessArray(transforms);
         job = new WaveJob()
         {
             time = Time.time,
-            currentFunc = new FunctionLibrary.WaveFunction(),
+            funcPtrs = compiledFunctionPointers,
+            resolution = graphProperties.resolution,
+            step = step,
+            pointsLength = points.Length,
+            z = 0,
+            x = 0,
+            v = v,
+            u = 0
         };
-        job.currentFunc.functionType = (int)currentFunctionType;
+        job.funcTypeKey = (int)currentFunctionType;
 
+
+    }
+    private void InitializeCompiledFunctionPointers()
+    {
+        compiledFunctionPointers = new NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>>(functionMethodsDictionary.Count, Allocator.Persistent);
+        for (int i = 0; i < functionMethodsDictionary.Count; i++)
+        {
+            compiledFunctionPointers.Add((int)functionMethodsDictionary.ElementAt(i).Key,
+            BurstCompiler.CompileFunctionPointer(functionMethodsDictionary.ElementAt(i).Value));
+        }
     }
     private bool IsCurrentFunctionTypeChanged()
     {
         if (currentFunctionType != currentFunctionTypeHolder)
         {
             currentFunctionTypeHolder = currentFunctionType;
-            job.currentFunc.functionType = (int)currentFunctionType;
+            job.funcTypeKey = (int)currentFunctionType;
             return true;
         }
         return false;
@@ -168,11 +199,36 @@ public partial class Graph
     [BurstCompile]
     private struct WaveJob : IJobParallelForTransform
     {
-        [ReadOnly] public FunctionLibrary.WaveFunction currentFunc;
+        [ReadOnly] public int funcTypeKey;
+        [ReadOnly] public NativeHashMap<int, FunctionPointer<FunctionLibrary.FunctionMethod>> funcPtrs;
         [ReadOnly] public float time;
+        [WriteOnly] private float outX;
+        [WriteOnly] private float outY;
+        [WriteOnly] private float outZ;
+        [ReadOnly] public int pointsLength;
+
+        #region InJobValues
+        [ReadOnly] public int resolution;
+        [ReadOnly] public float step;
+        [WriteOnly] public int x;
+        [WriteOnly] public int z;
+        [WriteOnly] public float v;
+        [WriteOnly] public float u;
+        #endregion
+
         public void Execute(int index, TransformAccess transform)
         {
-            transform.position = currentFunc.Evaluate(transform.position.x, transform.position.z, time);
+            x++;
+            if (x == resolution)
+            {
+                x = 0;
+                z += 1;
+                v = (z + 0.5f) * step - 1f;
+            }
+            u = (x + 0.5f) * step - 1f;
+            funcPtrs[funcTypeKey].Invoke(u, v, time, out outX, out outY, out outZ);
+            transform.position = new Vector3(outX, outY, outZ);
+
         }
     }
 
