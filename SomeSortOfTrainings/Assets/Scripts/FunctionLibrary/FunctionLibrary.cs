@@ -23,7 +23,7 @@ public static partial class FunctionLibrary
 
     public delegate Vector3 FunctionMethod(float u, float v, float t);
 
-    public static Vector3 Wave(float u, float v, float t)
+    private static Vector3 Wave(float u, float v, float t)
     {
         Vector3 p;
         p.x = u;
@@ -31,7 +31,7 @@ public static partial class FunctionLibrary
         p.z = v;
         return p;
     }
-    public static Vector3 MultiWave(float u, float v, float t)
+    private static Vector3 MultiWave(float u, float v, float t)
     {
         Vector3 p;
         p.x = u;
@@ -40,7 +40,7 @@ public static partial class FunctionLibrary
         return p;
 
     }
-    public static Vector3 MorphingWave(float u, float v, float t)
+    private static Vector3 MorphingWave(float u, float v, float t)
     {
         Vector3 p;
         p.x = u;
@@ -48,7 +48,7 @@ public static partial class FunctionLibrary
         p.z = v;
         return p;
     }
-    public static Vector3 Ripple(float u, float v, float t)
+    private static Vector3 Ripple(float u, float v, float t)
     {
         float d = math.sqrt(u * u + v * v);
         Vector3 p;
@@ -57,13 +57,24 @@ public static partial class FunctionLibrary
         p.z = v;
         return p;
     }
+    private static Vector3 Sphere(float u, float v, float t)
+    {
+        float r = 0.9f + 0.1f * math.sin(math.PI * (6f * u + 4f * v + t));
+        float s = r * math.cos(0.5f * math.PI * v);
+        Vector3 p;
+        p.x = s * math.sin(math.PI * u);
+        p.y = r * math.sin(math.PI * 0.5f * v);
+        p.z = s * math.cos(math.PI * u);
+        return p;
+    }
     public static List<MethodFunctionData> GetAllMehtods()
     {
         List<MethodFunctionData> twoRefFloatTypeFuncs = new List<MethodFunctionData>(){
             new MethodFunctionData(FunctionTypes.Wave,Wave),
             new MethodFunctionData(FunctionTypes.MultiWave,MultiWave),
             new MethodFunctionData(FunctionTypes.MorphingWave,MorphingWave),
-            new MethodFunctionData(FunctionTypes.Ripple,Ripple)
+            new MethodFunctionData(FunctionTypes.Ripple,Ripple),
+            new MethodFunctionData(FunctionTypes.Sphere,Sphere)
         };
         return twoRefFloatTypeFuncs;
 

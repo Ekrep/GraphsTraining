@@ -80,9 +80,19 @@ public partial class Graph : MonoBehaviour
     }
     private void WaveFunction()
     {
-        for (int i = 0; i < points.Length; i++)
+        //v means z axis, u means x axis
+        float step = 2f / graphProperties.resolution;
+        float v = 0.5f * step - 1f;
+        for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++)
         {
-            points[i].SetLocalPosition(functionMethodsDictionary[currentFunctionType](points[i].GetLocalPosition().x, points[i].GetLocalPosition().z, Time.time));
+            if (x == graphProperties.resolution)
+            {
+                x = 0;
+                z += 1;
+                v = (z + 0.5f) * step - 1f;
+            }
+            float u = (x + 0.5f) * step - 1f;
+            points[i].SetLocalPosition(functionMethodsDictionary[currentFunctionType](u, v, Time.time));
         }
 
     }
@@ -91,16 +101,10 @@ public partial class Graph : MonoBehaviour
         points = new Point[graphProperties.resolution * graphProperties.resolution];
         float step = 2f / graphProperties.resolution;
         Vector3 scale = graphProperties.pointScale * step;
-        for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++)
+        for (int i = 0; i < points.Length; i++)
         {
-            if (x == graphProperties.resolution)
-            {
-                x = 0;
-                z += 1;
-            }
             points[i] = Instantiate(graphProperties.pointPrefab);
             points[i].pointMeshFilter.mesh = graphProperties.meshType;
-            points[i].SetPosition(new Vector3((x + 0.5f) * step - 1f, 0, (z + 0.5f) * step - 1f));
             points[i].SetScale(scale);
             points[i].SetParent(transform, false);
         }

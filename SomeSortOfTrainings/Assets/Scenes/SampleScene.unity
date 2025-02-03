@@ -315,7 +315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   graphProperties: {fileID: 11400000, guid: 3ce3d4a8c30e25f4aae6920c1c9ec523, type: 2}
-  currentFunctionType: 3
+  currentFunctionType: 4
   useBurst: 0
 --- !u!4 &762095919
 Transform:
