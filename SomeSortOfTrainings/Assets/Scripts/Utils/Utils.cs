@@ -11,7 +11,8 @@ namespace Utilities
             MultiWave,
             MorphingWave,
             Ripple,
-            Sphere
+            Sphere,
+            Torus
 
         }
         public enum MeshTypes
