@@ -81,8 +81,8 @@ public partial class Graph : MonoBehaviour
         }
         if (useBurst)
         {
-            WaveFunctionBurst();
             IsCurrentFunctionTypeChanged();
+            WaveFunctionBurst();
         }
         else
         {
@@ -333,7 +333,7 @@ public partial class Graph
             to.Invoke(u, v, t, out x2, out y2, out z2);
             Vector3 fromVec = new Vector3(x1, y1, z1);
             Vector3 toVec = new Vector3(x2, y2, z2);
-            return Vector3.LerpUnclamped(fromVec, toVec, Mathf.SmoothStep(0f, 1f, progress));
+            return Vector3.LerpUnclamped(fromVec, toVec, math.smoothstep(0f, 1f, progress));
         }
     }
 
