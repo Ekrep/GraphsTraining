@@ -2,7 +2,12 @@ using UnityEngine;
 
 public class FPSCounter : MonoBehaviour
 {
-    private float deltaTime = 0.0f;
+    private float frameDuration;
+    private int frames;
+    private float duration;
+
+    private string avgFrameText;
+    private string frameText;
 
     private string burstMode = "MONO";
 
@@ -16,30 +21,33 @@ public class FPSCounter : MonoBehaviour
         {
             burstMode = "MONO";
         }
-        // DeltaTime biriktirilerek FPS hesaplanır.
-        deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
+        frameDuration = Time.unscaledDeltaTime;
+        frameText = $"FRAME:\t{1f / frameDuration:0}";
+        frames += 1;
+        duration += frameDuration;
+        if (duration >= 1)
+        {
+            avgFrameText = $"AVG:\t{frames / duration:0}";
+            frames = 0;
+            duration = 0;
+        }
     }
 
     void OnGUI()
     {
-        // FPS değerini hesaplayın
-        float fps = 1.0f / deltaTime;
-        string text = $"FPS: {Mathf.Ceil(fps)}";
+        //burst mode label
+        CreateLabel(24, Color.red, new Rect(10, 10, 200, 50), "MODE:\t" + burstMode);
+        //FrameRate 
+        CreateLabel(24, Color.white, new Rect(10, 30, 200, 50), frameText);
+        //AvarageFrameRate
+        CreateLabel(24, Color.green, new Rect(10, 50, 200, 50), avgFrameText);
+    }
 
-        // Ekrana yazdırın
+    private void CreateLabel(int fontSize, Color textColor, Rect textRect, string text)
+    {
         GUIStyle style = new GUIStyle();
-        style.fontSize = 24;
-        style.normal.textColor = Color.white;
-
-        // Sağ üst köşeye yazdır
-        Rect rect = new Rect(10, 10, 200, 50);
-        GUI.Label(rect, text, style);
-
-        GUIStyle burstStyle = new GUIStyle();
-        burstStyle.fontSize = 24;
-        burstStyle.normal.textColor = Color.red;
-
-        Rect burstRect = new Rect(10, 50, 200, 50);
-        GUI.Label(burstRect, burstMode, style);
+        style.fontSize = fontSize;
+        style.normal.textColor = textColor;
+        GUI.Label(textRect, text, style);
     }
 }

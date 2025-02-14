@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using Unity.Burst;
 using static Utilities.Utils;
 using Unity.Mathematics;
-using Mono.Cecil;
-using System;
+using UnityEngine;
 
 
 [BurstCompile]
@@ -95,6 +94,16 @@ public static class FunctionLibrary
         z = s * math.cos(PI * u);
         #endregion
     }
+
+    public static Vector3 Morph(float u, float v, float t, FunctionMethod fromFunc, FunctionMethod to, float progress)
+    {
+        float x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
+        fromFunc(u, v, t, out x1, out y1, out z1);
+        to(u, v, t, out x2, out y2, out z2);
+        Vector3 fromVec = new Vector3(x1, y1, z1);
+        Vector3 toVec = new Vector3(x2, y2, z2);
+        return Vector3.LerpUnclamped(fromVec, toVec, Mathf.SmoothStep(0f, 1f, progress));
+    }
     public static List<MethodFunctionData> GetAllMehtods()
     {
         List<MethodFunctionData> floatTypeFuncs = new List<MethodFunctionData>(){
@@ -103,7 +112,7 @@ public static class FunctionLibrary
             new MethodFunctionData(FunctionTypes.MorphingWave,MorphingWave),
             new MethodFunctionData(FunctionTypes.Ripple,Ripple),
             new MethodFunctionData(FunctionTypes.Sphere,Sphere),
-            new MethodFunctionData(FunctionTypes.Torus,Torus)
+            new MethodFunctionData(FunctionTypes.Torus,Torus),
         };
         return floatTypeFuncs;
 

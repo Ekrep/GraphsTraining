@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 public class Point : MonoBehaviour
 {
     public MeshRenderer pointRenderer;
     public MeshFilter pointMeshFilter;
-
+   
     public void SetPosition(Vector3 position)
     {
         transform.position = position;

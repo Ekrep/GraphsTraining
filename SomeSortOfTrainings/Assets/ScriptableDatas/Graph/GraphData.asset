@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GraphData
   m_EditorClassIdentifier: 
   pointPrefab: {fileID: 4865737772897536210, guid: 60b0e4fb18821f144a7eaf2c6c11a373, type: 3}
-  resolution: 98
+  resolution: 100
   pointScale: {x: 1, y: 1, z: 1}
   meshType: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   prefabMeshType: 0
