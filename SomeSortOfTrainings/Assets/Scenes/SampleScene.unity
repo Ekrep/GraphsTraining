@@ -295,6 +295,7 @@ GameObject:
   m_Component:
   - component: {fileID: 762095919}
   - component: {fileID: 762095918}
+  - component: {fileID: 762095920}
   m_Layer: 0
   m_Name: Graph
   m_TagString: Untagged
@@ -309,7 +310,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 762095917}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 418a60091f9804e4ab9a4298cce697b8, type: 3}
   m_Name: 
@@ -336,6 +337,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &762095920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 762095917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e814abf98620fc48b765f9bcc20843f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graphProperties: {fileID: 11400000, guid: 3ce3d4a8c30e25f4aae6920c1c9ec523, type: 2}
+  currentFunctionType: 0
+  functionDuration: 1
+  transitionDuration: 1
+  useRandomFunctionSelect: 0
+  transitioning: 0
+  computeShader: {fileID: 7200000, guid: 146a2c490a423254295b7a43db6b61f0, type: 3}
+  material: {fileID: 2100000, guid: c3aaa686a9b4e2e46820cead13a6d9eb, type: 2}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
