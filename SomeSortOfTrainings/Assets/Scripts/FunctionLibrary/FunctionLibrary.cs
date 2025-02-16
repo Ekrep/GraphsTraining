@@ -20,6 +20,7 @@ public static class FunctionLibrary
         public FunctionMethod func;
 
     }
+    public static List<MethodFunctionData> functions;
     public delegate void FunctionMethod(float u, float v, float t, out float x, out float y, out float z);
 
     [BurstCompile]
@@ -34,13 +35,6 @@ public static class FunctionLibrary
     {
         x = u;
         y = (math.sin(PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * PI * (v + t)) * 0.25f) * (2f / 3f);
-        z = v;
-    }
-    [BurstCompile]
-    private static void MorphingWave(float u, float v, float t, out float x, out float y, out float z)
-    {
-        x = u;
-        y = math.sin(PI * (u + 0.5f * t)) + 0.5f * math.sin(2f * PI * (u + v + t));
         z = v;
     }
     [BurstCompile]
@@ -106,15 +100,28 @@ public static class FunctionLibrary
     }
     public static List<MethodFunctionData> GetAllMehtods()
     {
-        List<MethodFunctionData> floatTypeFuncs = new List<MethodFunctionData>(){
+        if (functions == null)
+        {
+            List<MethodFunctionData> floatTypeFuncs = new List<MethodFunctionData>(){
             new MethodFunctionData(FunctionTypes.Wave,Wave),
             new MethodFunctionData(FunctionTypes.MultiWave,MultiWave),
-            new MethodFunctionData(FunctionTypes.MorphingWave,MorphingWave),
             new MethodFunctionData(FunctionTypes.Ripple,Ripple),
             new MethodFunctionData(FunctionTypes.Sphere,Sphere),
             new MethodFunctionData(FunctionTypes.Torus,Torus),
         };
-        return floatTypeFuncs;
+            functions = floatTypeFuncs;
+            return floatTypeFuncs;
+        }
+        else
+        {
+            return functions;
+        }
+
+
+    }
+    public static int GetAllMehtodsCount()
+    {
+        return GetAllMehtods().Count;
 
     }
 }

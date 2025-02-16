@@ -9,7 +9,6 @@ namespace Utilities
         {
             Wave,
             MultiWave,
-            MorphingWave,
             Ripple,
             Sphere,
             Torus

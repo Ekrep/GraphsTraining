@@ -9,6 +9,7 @@ namespace GraphProperties.GraphData
     [CreateAssetMenu(menuName = "GraphProperties/GraphData")]
     public class GraphPropertiesScriptable : ScriptableObject
     {
+        public const int maxResolution = 1000;
         [System.Serializable]
         public struct MeshTypeDatas
         {
