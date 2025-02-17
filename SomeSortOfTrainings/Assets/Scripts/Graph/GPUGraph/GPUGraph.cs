@@ -7,20 +7,9 @@ using UnityEditor;
 using System;
 
 
-public class GPUGraph : MonoBehaviour
+public class GPUGraph : Graph
 {
-    #region Regular Variables
-    [SerializeField] private GraphPropertiesScriptable graphProperties;
-    [SerializeField] private FunctionTypes currentFunctionType;
 
-    [SerializeField, Min(0f)] private float functionDuration = 1f, transitionDuration = 1f;
-    private float duration;
-    [SerializeField] private bool useRandomFunctionSelect = false;
-    [SerializeField] private bool transitioning = false;
-    private FunctionTypes transitionFunctionTypeHolder;
-
-    [SerializeField] private int totalFunctionsCount;
-    #endregion
     #region Compute Shader Varaibles
     ComputeBuffer positionsBuffer;
     [SerializeField] private ComputeShader computeShader;
@@ -83,27 +72,6 @@ public class GPUGraph : MonoBehaviour
         Bounds bounds = new Bounds(Vector3.zero, Vector3.one * (2f + 2f / graphProperties.resolution));
         Graphics.DrawMeshInstancedProcedural(graphProperties.meshType, 0, material, bounds, graphProperties.resolution * graphProperties.resolution);
 
-
-    }
-    private FunctionTypes GiveRandomOrNextFunctionType()
-    {
-        return (FunctionTypes)(Convert.ToInt16(!useRandomFunctionSelect) * GetNextFuncIndex())
-        + Convert.ToInt16(useRandomFunctionSelect) * CheckFunctionIndexMatch((int)currentFunctionType, UnityEngine.Random.Range(0, totalFunctionsCount));
-    }
-    private int GetNextFuncIndex()
-    {
-        return ((int)currentFunctionType + 1) % totalFunctionsCount;
-    }
-    private int CheckFunctionIndexMatch(int currentIndex, int randomIndex)
-    {
-        if (currentIndex == randomIndex)
-        {
-            return randomIndex + 1 % totalFunctionsCount;
-        }
-        else
-        {
-            return randomIndex;
-        }
 
     }
 }
