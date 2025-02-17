@@ -1,14 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 using static Utilities.Utils;
-using UnityEngine.Jobs;
-using Unity.Jobs;
-using Unity.Collections;
-using Unity.Burst;
-using System.Linq;
 using GraphProperties.GraphData;
 using System;
-using Unity.Mathematics;
+
 
 public class Graph : MonoBehaviour
 {

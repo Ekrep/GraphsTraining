@@ -1,10 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using GraphProperties.GraphData;
-using static Utilities.Utils;
-using UnityEditor;
-using System;
 
 
 public class GPUGraph : Graph
