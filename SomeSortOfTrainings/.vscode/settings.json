@@ -51,5 +51,14 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "SomeSortOfTrainings.sln"
+    "dotnet.defaultSolution": "SomeSortOfTrainings.sln",
+
+    
+        "editor.formatOnSave": true, // Kaydederken otomatik düzenleme
+        "editor.wordWrap": "on", // Uzun satırları otomatik alt satıra al
+        "editor.suggest.snippetsPreventQuickSuggestions": false, // Kod yazarken önerileri aç
+        "editor.semanticHighlighting.enabled": true, // Daha iyi kod renklendirme
+        "hlsl.format.enable": true, // HLSL formatlama aktif
+        "hlsl.linter.enable": true // HLSL için hata kontrolünü aç
+           
 }
