@@ -15,7 +15,7 @@ namespace CollectionsTraining.CollectionVisulator.QueueCollectionVisulator
         private int tail;
         private int capacity;
         private int count;
-        public DataNode[] nodeQueue;
+        private DataNode[] nodeQueue;
         private VisulatorPointingArrow headPointerArrow;
         private VisulatorPointingArrow tailPointerArrow;
         void Start()
